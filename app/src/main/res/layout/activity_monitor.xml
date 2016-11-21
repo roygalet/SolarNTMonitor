@@ -12,7 +12,69 @@
 
     <WebView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/webView" />
+        android:id="@+id/webView"
+        android:layout_height="400dp"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="27dp" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:text="Daily"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnDaily"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textAlignment="textEnd" />
+
+        <TextView
+            android:text="Monthly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnMonthly"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textAlignment="center" />
+
+        <TextView
+            android:text="Yearly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnYearly"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:textAppearance="@android:style/TextAppearance.Material.Large" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/webView"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:text="Compare:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView4"
+            android:layout_weight="1"
+            android:textAppearance="@android:style/TextAppearance.Material.Large" />
+
+        <Spinner
+            android:layout_width="274dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinSystems"
+            android:layout_weight="0.50" />
+    </LinearLayout>
+
 </RelativeLayout>

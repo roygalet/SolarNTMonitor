@@ -1,4 +1,4 @@
-package solarntmonitor;
+package PVOutputData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
