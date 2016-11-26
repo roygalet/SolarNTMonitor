@@ -80,17 +80,26 @@ public class PVSystemsCollection {
                     mySystem.retrieveDailyData(mySettings);
                     mySystem.retrieveMonthlyData(mySettings);
                     mySystem.retriveYearlyData(mySettings);
-                } else {
+                }else{
                     if (currentSystem.getLastOutput().compareToIgnoreCase("Today") == 0) {
-                        if(pvSystems.size() < maxNumber) {
-                            currentSystem.retrieveDailyData(mySettings);
-                            currentSystem.retrieveMonthlyData(mySettings);
-                            currentSystem.retriveYearlyData(mySettings);
-                            pvSystems.put(currentSystem.getName(), currentSystem);
-                        }
+                        currentSystem.retrieveDailyData(mySettings);
+                        currentSystem.retrieveMonthlyData(mySettings);
+                        currentSystem.retriveYearlyData(mySettings);
+                        pvSystems.put(currentSystem.getName(), currentSystem);
                     }
                 }
             }
+            while(pvSystems.size()>maxNumber){
+                PVSystem largest = (PVSystem) pvSystems.get(pvSystems.keySet().toArray()[0]);
+                for(int i = 1; i < pvSystems.size(); i++){
+                    PVSystem currentSystem = (PVSystem) pvSystems.get(pvSystems.keySet().toArray()[i]);
+                    if(Math.abs(currentSystem.getSize()-mySystem.getSize()) > Math.abs(largest.getSize()-mySystem.getSize())){
+                        largest = currentSystem;
+                    }
+                }
+                pvSystems.remove(largest.getName());
+            }
+
             bufferedReader.close();
 
         } catch (MalformedURLException ex) {
@@ -503,6 +512,266 @@ public class PVSystemsCollection {
             }
             data[i] = "['".concat(dateLabel).concat("',").concat(String.valueOf(myPower)).concat(",").concat(String.valueOf(myEfficiency)).concat(",").concat(String.valueOf(sysPower)).concat(",").concat(String.valueOf(sysEfficiency)).concat("]");
 
+        }
+        html = html.concat(TextUtils.join(",", data));
+//          .concat("")
+        html = html.concat("]);\n"
+                + "			// Set chart options\n"
+                + "			var options = {\n"
+                + "					colors: ['rgb(204, 255, 102)','rgb(51, 153, 51)','rgb(255, 142, 142)','rgb(153, 51, 51)'],\n"
+                + "				'i3D':true,\n"
+                + "				legend: { position: 'top', alignment: 'center' }\n"
+                + "				, vAxis: {\n"
+                + "					title: '\\n\\n\\nPower Generated',\n"
+                + "					format: '0 kWh',\n"
+                + "					minValue:0\n"
+                + "				}\n"
+                + "				, hAxis: {\n"
+                + "					lineWidth: 4\n"
+                + "				}\n"
+                + "				, seriesType: 'bars'\n"
+                + "				, series: {\n"
+                + "					1: {\n"
+                + "						type: 'line',\n"
+                + "						curveType: 'function',\n"
+                + "						targetAxisIndex:1\n"
+                + "					}\n"
+                + "					,3: {\n"
+                + "						type: 'line',\n"
+                + "						curveType: 'function',\n"
+                + "						targetAxisIndex:1\n"
+                + "					}\n"
+                + "					, 'bar': {\n"
+                + "						'groupWidth': \"95%\"\n"
+                + "					}\n"
+                + "				},\n"
+                + "				vAxes: {\n"
+                + "				1: {\n"
+                + "				  title:'Efficiency\\n\\n\\n',\n"
+                + "				  format: '0 kWh/kW',\n"
+                + "					minValue:0\n"
+                + "				}\n"
+                + "			  }\n"
+                + "			};\n"
+                + "			// Instantiate and draw our chart, passing in some options.\n"
+                + "			var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));\n"
+                + "			chart.draw(data, options);\n"
+                + "					}\n"
+                + "	</script>\n"
+                + "</head>\n"
+                + "\n"
+                + "<body>\n"
+                + "	<!--Div that will hold the pie chart-->\n"
+                + "	<div id=\"chart_div\" style=\"width:100%; height:100%\"></div>\n"
+                + "</body>\n"
+                + "\n"
+                + "</html>");
+        return html;
+    }
+
+    public String compareMonthly(String systemName, int numberOfMonths) {
+        String html = "<html>\n"
+                + "\n"
+                + "<head>\n"
+                + "	<!--Load the AJAX API-->\n"
+                + "	<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>\n"
+                + "	<script type=\"text/javascript\">\n"
+                + "		// Load the Visualization API and the corechart package.\n"
+                + "		google.charts.load('current', {\n"
+                + "			'packages': ['corechart']\n"
+                + "		});\n"
+                + "		// Set a callback to run when the Google Visualization API is loaded.\n"
+                + "		google.charts.setOnLoadCallback(drawChart);\n"
+                + "		// Callback that creates and populates a data table,\n"
+                + "		// instantiates the pie chart, passes in the data and\n"
+                + "		// draws it.\n"
+                + "		function drawChart() {\n"
+                + "			// Create the data table.\n"
+                + "			var data = new google.visualization.DataTable();\n"
+                + "			data.addColumn('string', 'Date');\n"
+                + "			data.addColumn('number', 'My Power');\n"
+                + "			data.addColumn('number', 'My Efficiency');\n"
+                + "			data.addColumn('number', '" + systemName + " Power');\n"
+                + "			data.addColumn('number', '" + systemName + " Efficiency');\n"
+                + "			data.addRows([";
+        float myPower, myEfficiency,sysPower, sysEfficiency;
+        String year, month;
+        if (numberOfMonths > mySystem.getMonthlyData().size()) {
+            numberOfMonths = mySystem.getMonthlyData().size();
+        }
+        String[] data = new String[numberOfMonths];
+
+        Set<String> keys = mySystem.getMonthlyData().keySet();
+        String[] array = keys.toArray(new String[keys.size()]);
+        String temp = "";
+        for (int i = 0; i < keys.size() - 1; i++) {
+            for (int j = i + 1; j < keys.size(); j++) {
+                if (Integer.parseInt(array[i]) > Integer.parseInt(array[j])) {
+                    temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                }
+            }
+        }
+
+        PVSystem otherSystem = (PVSystem) pvSystems.get(systemName);
+
+        for (int i = 0; i < numberOfMonths; i++) {
+            year = array[i].substring(0, 4);
+            month = array[i].substring(4);
+            if (month.length() < 2) {
+                month = "0".concat(month);
+            }
+            if (mySystem.getMonthlyData().get(year.concat(month)) == null) {
+                myPower = 0;
+                myEfficiency = 0;
+            } else {
+                myPower = ((PVSummarizedData) mySystem.getMonthlyData().get(year.concat(month))).getEnergyGenerated() / 1000;
+                myEfficiency = ((PVSummarizedData) mySystem.getMonthlyData().get(year.concat(month))).getEfficiency();
+            }
+
+            if (otherSystem.getMonthlyData().get(year.concat(month)) == null) {
+                sysPower = 0;
+                sysEfficiency = 0;
+            } else {
+                sysPower = ((PVSummarizedData) otherSystem.getMonthlyData().get(year.concat(month))).getEnergyGenerated() / 1000;
+                sysEfficiency = ((PVSummarizedData) otherSystem.getMonthlyData().get(year.concat(month))).getEfficiency();
+            }
+
+            String dateLabel = "";
+            if (i % 6 == 0) {
+                dateLabel = (new DateFormatSymbols()).getMonths()[Integer.parseInt(month)-1].substring(0, 3).concat(" ").concat(year.substring(2));
+            } else if (i == array.length - 1) {
+                dateLabel = "This Month";
+            }
+            data[i-array.length+numberOfMonths] = "['".concat(dateLabel).concat("',").concat(String.valueOf(myPower)).concat(",").concat(String.valueOf(myEfficiency)).concat(",").concat(String.valueOf(sysPower)).concat(",").concat(String.valueOf(sysEfficiency)).concat("]");
+
+        }
+        html = html.concat(TextUtils.join(",", data));
+//          .concat("")
+        html = html.concat("]);\n"
+                + "			// Set chart options\n"
+                + "			var options = {\n"
+                + "					colors: ['rgb(204, 255, 102)','rgb(51, 153, 51)','rgb(255, 142, 142)','rgb(153, 51, 51)'],\n"
+                + "				'i3D':true,\n"
+                + "				legend: { position: 'top', alignment: 'center' }\n"
+                + "				, vAxis: {\n"
+                + "					title: '\\n\\n\\nPower Generated',\n"
+                + "					format: '0 kWh',\n"
+                + "					minValue:0\n"
+                + "				}\n"
+                + "				, hAxis: {\n"
+                + "					lineWidth: 4\n"
+                + "				}\n"
+                + "				, seriesType: 'bars'\n"
+                + "				, series: {\n"
+                + "					1: {\n"
+                + "						type: 'line',\n"
+                + "						curveType: 'function',\n"
+                + "						targetAxisIndex:1\n"
+                + "					}\n"
+                + "					,3: {\n"
+                + "						type: 'line',\n"
+                + "						curveType: 'function',\n"
+                + "						targetAxisIndex:1\n"
+                + "					}\n"
+                + "					, 'bar': {\n"
+                + "						'groupWidth': \"95%\"\n"
+                + "					}\n"
+                + "				},\n"
+                + "				vAxes: {\n"
+                + "				1: {\n"
+                + "				  title:'Efficiency\\n\\n\\n',\n"
+                + "				  format: '0 kWh/kW',\n"
+                + "					minValue:0\n"
+                + "				}\n"
+                + "			  }\n"
+                + "			};\n"
+                + "			// Instantiate and draw our chart, passing in some options.\n"
+                + "			var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));\n"
+                + "			chart.draw(data, options);\n"
+                + "					}\n"
+                + "	</script>\n"
+                + "</head>\n"
+                + "\n"
+                + "<body>\n"
+                + "	<!--Div that will hold the pie chart-->\n"
+                + "	<div id=\"chart_div\" style=\"width:100%; height:100%\"></div>\n"
+                + "</body>\n"
+                + "\n"
+                + "</html>");
+        return html;
+    }
+
+    public String compareYearly(String systemName, int numberOfYears) {
+        String html = "<html>\n"
+                + "\n"
+                + "<head>\n"
+                + "	<!--Load the AJAX API-->\n"
+                + "	<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>\n"
+                + "	<script type=\"text/javascript\">\n"
+                + "		// Load the Visualization API and the corechart package.\n"
+                + "		google.charts.load('current', {\n"
+                + "			'packages': ['corechart']\n"
+                + "		});\n"
+                + "		// Set a callback to run when the Google Visualization API is loaded.\n"
+                + "		google.charts.setOnLoadCallback(drawChart);\n"
+                + "		// Callback that creates and populates a data table,\n"
+                + "		// instantiates the pie chart, passes in the data and\n"
+                + "		// draws it.\n"
+                + "		function drawChart() {\n"
+                + "			// Create the data table.\n"
+                + "			var data = new google.visualization.DataTable();\n"
+                + "			data.addColumn('string', 'Date');\n"
+                + "			data.addColumn('number', 'My Power');\n"
+                + "			data.addColumn('number', 'My Efficiency');\n"
+                + "			data.addColumn('number', '" + systemName + " Power');\n"
+                + "			data.addColumn('number', '" + systemName + " Efficiency');\n"
+                + "			data.addRows([";
+        float myPower, myEfficiency,sysPower, sysEfficiency;
+        String year;
+        if (numberOfYears > mySystem.getYearlyData().size()) {
+            numberOfYears = mySystem.getYearlyData().size();
+        }
+        String[] data = new String[numberOfYears];
+
+        Set<String> keys = mySystem.getYearlyData().keySet();
+        String[] array = keys.toArray(new String[keys.size()]);
+        String temp = "";
+        for (int i = 0; i < keys.size() - 1; i++) {
+            for (int j = i + 1; j < keys.size(); j++) {
+                if (Integer.parseInt(array[i]) > Integer.parseInt(array[j])) {
+                    temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                }
+            }
+        }
+
+        PVSystem otherSystem = (PVSystem) pvSystems.get(systemName);
+
+        for (int i = 0; i < numberOfYears; i++) {
+            year = array[i];
+
+            if (mySystem.getYearlyData().get(year) == null) {
+                myPower = 0;
+                myEfficiency = 0;
+            } else {
+                myPower = ((PVSummarizedData) mySystem.getYearlyData().get(year)).getEnergyGenerated() / 1000;
+                myEfficiency = ((PVSummarizedData) mySystem.getYearlyData().get(year)).getEfficiency();
+            }
+
+            if (otherSystem.getYearlyData().get(year) == null) {
+                sysPower = 0;
+                sysEfficiency = 0;
+            } else {
+                sysPower = ((PVSummarizedData) mySystem.getYearlyData().get(year)).getEnergyGenerated() / 1000;
+                sysEfficiency = ((PVSummarizedData) mySystem.getYearlyData().get(year)).getEfficiency();
+            }
+
+            String dateLabel = "";
+            dateLabel = year;
+            data[i-array.length+numberOfYears] = "['".concat(dateLabel).concat("',").concat(String.valueOf(myPower)).concat(",").concat(String.valueOf(myEfficiency)).concat(",").concat(String.valueOf(sysPower)).concat(",").concat(String.valueOf(sysEfficiency)).concat("]");
         }
         html = html.concat(TextUtils.join(",", data));
 //          .concat("")

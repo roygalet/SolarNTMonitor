@@ -35,6 +35,12 @@ public class MonitorActivity extends AppCompatActivity {
     TextView btnYearly;
     List<String> systems;
     Spinner spinSystems;
+    final String dontCompareMessage = "(Show my data only)";
+    final int DAILY = 1;
+    final int MONTHLY = 2;
+    final int YEARLY = 3;
+    int currentFrequency=DAILY;
+    String compareSystem = dontCompareMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,38 +52,6 @@ public class MonitorActivity extends AppCompatActivity {
 
         new PVOutputConnection().execute();
 
-        btnDaily = (TextView)findViewById(R.id.btnDaily);
-        btnDaily.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webView.loadDataWithBaseURL("",nearbyCollection.generateMyDailyData(11), "text/html", "UTF-8", "");
-                btnDaily.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                btnMonthly.setTypeface(Typeface.DEFAULT);
-                btnYearly.setTypeface(Typeface.DEFAULT);
-            }
-        });
-
-        btnMonthly = (TextView)findViewById(R.id.btnMonthly);
-        btnMonthly.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webView.loadDataWithBaseURL("",nearbyCollection.generateMyMonthlyData(13), "text/html", "UTF-8", "");
-                btnMonthly.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                btnDaily.setTypeface(Typeface.DEFAULT);
-                btnYearly.setTypeface(Typeface.DEFAULT);
-            }
-        });
-
-        btnYearly = (TextView)findViewById(R.id.btnYearly);
-        btnYearly.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webView.loadDataWithBaseURL("",nearbyCollection.generateMyYearlyData(5), "text/html", "UTF-8", "");
-                btnYearly.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                btnMonthly.setTypeface(Typeface.DEFAULT);
-                btnDaily.setTypeface(Typeface.DEFAULT);
-            }
-        });
 
         spinSystems = (Spinner) findViewById(R.id.spinSystems);
         spinSystems.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
@@ -85,14 +59,64 @@ public class MonitorActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
                 String selectedItem = parent.getItemAtPosition(position).toString();
-                html = nearbyCollection.compareDaily(selectedItem, 10);
-                webView.loadDataWithBaseURL("", html, "text/html", "UTF-8", "");
+                compareSystem = selectedItem;
+                generateGraph();
             } // to close the onItemSelected
             public void onNothingSelected(AdapterView<?> parent)
             {
 
             }
         });
+
+        btnDaily = (TextView)findViewById(R.id.btnDaily);
+        btnDaily.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                generateGraph();
+            }
+        });
+
+        btnMonthly = (TextView)findViewById(R.id.btnMonthly);
+        btnMonthly.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                generateGraph();
+            }
+        });
+
+        btnYearly = (TextView)findViewById(R.id.btnYearly);
+        btnYearly.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                generateGraph();
+            }
+        });
+
+    }
+
+    private void generateGraph(){
+        if (currentFrequency == DAILY) {
+            if(compareSystem.compareToIgnoreCase(dontCompareMessage)==0) {
+                webView.loadDataWithBaseURL("", nearbyCollection.generateMyDailyData(11), "text/html", "UTF-8", "");
+            }else{
+                webView.loadDataWithBaseURL("", nearbyCollection.compareDaily(compareSystem,11), "text/html", "UTF-8", "");
+            }
+        }else if (currentFrequency == MONTHLY) {
+            if(compareSystem.compareToIgnoreCase(dontCompareMessage)==0) {
+                webView.loadDataWithBaseURL("", nearbyCollection.generateMyMonthlyData(13), "text/html", "UTF-8", "");
+            }else{
+                webView.loadDataWithBaseURL("", nearbyCollection.compareMonthly(compareSystem,13), "text/html", "UTF-8", "");
+            }
+        }else if (currentFrequency == YEARLY) {
+            if(compareSystem.compareToIgnoreCase(dontCompareMessage)==0) {
+                webView.loadDataWithBaseURL("", nearbyCollection.generateMyYearlyData(10), "text/html", "UTF-8", "");
+            }else{
+//                webView.loadDataWithBaseURL("", nearbyCollection.compareMonthly(compareSystemName,13), "text/html", "UTF-8", "");
+            }
+        }
+        btnDaily.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        btnMonthly.setTypeface(Typeface.DEFAULT);
+        btnYearly.setTypeface(Typeface.DEFAULT);
     }
 
     class PVOutputConnection extends AsyncTask <String, Long, PVOutputData.PVSystemsCollection>{
@@ -119,6 +143,7 @@ public class MonitorActivity extends AppCompatActivity {
         protected void onPostExecute(PVSystemsCollection pvSystemsCollection) {
             super.onPostExecute(pvSystemsCollection);
             systems = new ArrayList<String>();
+            systems.add(dontCompareMessage);
             for(int i=0; i<nearbyCollection.getPvSystems().size(); i++){
                 systems.add((String) nearbyCollection.getPvSystems().keySet().toArray()[i]);
             }

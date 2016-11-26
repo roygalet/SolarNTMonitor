@@ -22,6 +22,28 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/webView"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:text="Compare:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView4"
+            android:layout_weight="1"
+            android:textAppearance="@android:style/TextAppearance.Material.Large" />
+
+        <Spinner
+            android:layout_width="274dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinSystems"
+            android:layout_weight="0.50" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
 
@@ -53,28 +75,6 @@
             android:layout_weight="1"
             android:clickable="true"
             android:textAppearance="@android:style/TextAppearance.Material.Large" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/webView"
-        android:layout_centerHorizontal="true">
-
-        <TextView
-            android:text="Compare:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView4"
-            android:layout_weight="1"
-            android:textAppearance="@android:style/TextAppearance.Material.Large" />
-
-        <Spinner
-            android:layout_width="274dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/spinSystems"
-            android:layout_weight="0.50" />
     </LinearLayout>
 
 </RelativeLayout>
