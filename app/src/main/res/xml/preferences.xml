@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <PreferenceCategory
+        android:title="PV Output Settings">
+        <EditTextPreference
+            android:title="System ID"
+            android:summary = "Refer to PVOutput.org for your System ID.  You can also register if you don't have one."
+            android:key="sid"
+            android:defaultValue="47892">
+        </EditTextPreference>
+
+        <EditTextPreference
+            android:title="API Key"
+            android:summary = "Refer to PVOutput.org for your API Key."
+            android:key="key"
+            android:defaultValue="4012c804abb523bf7466ef415c9ba808e8aae946">
+
+        </EditTextPreference>
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Compare Settings"
+        >
+
+
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
