@@ -644,7 +644,7 @@ public class PVSystemsCollection {
             } else if (i == array.length - 1) {
                 dateLabel = "This Month";
             }
-            data[i-array.length+numberOfMonths] = "['".concat(dateLabel).concat("',").concat(String.valueOf(myPower)).concat(",").concat(String.valueOf(myEfficiency)).concat(",").concat(String.valueOf(sysPower)).concat(",").concat(String.valueOf(sysEfficiency)).concat("]");
+            data[i] = "['".concat(dateLabel).concat("',").concat(String.valueOf(myPower)).concat(",").concat(String.valueOf(myEfficiency)).concat(",").concat(String.valueOf(sysPower)).concat(",").concat(String.valueOf(sysEfficiency)).concat("]");
 
         }
         html = html.concat(TextUtils.join(",", data));
@@ -765,13 +765,13 @@ public class PVSystemsCollection {
                 sysPower = 0;
                 sysEfficiency = 0;
             } else {
-                sysPower = ((PVSummarizedData) mySystem.getYearlyData().get(year)).getEnergyGenerated() / 1000;
-                sysEfficiency = ((PVSummarizedData) mySystem.getYearlyData().get(year)).getEfficiency();
+                sysPower = ((PVSummarizedData) otherSystem.getYearlyData().get(year)).getEnergyGenerated() / 1000;
+                sysEfficiency = ((PVSummarizedData) otherSystem.getYearlyData().get(year)).getEfficiency();
             }
 
             String dateLabel = "";
             dateLabel = year;
-            data[i-array.length+numberOfYears] = "['".concat(dateLabel).concat("',").concat(String.valueOf(myPower)).concat(",").concat(String.valueOf(myEfficiency)).concat(",").concat(String.valueOf(sysPower)).concat(",").concat(String.valueOf(sysEfficiency)).concat("]");
+            data[i] = "['".concat(dateLabel).concat("',").concat(String.valueOf(myPower)).concat(",").concat(String.valueOf(myEfficiency)).concat(",").concat(String.valueOf(sysPower)).concat(",").concat(String.valueOf(sysEfficiency)).concat("]");
         }
         html = html.concat(TextUtils.join(",", data));
 //          .concat("")
